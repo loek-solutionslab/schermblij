@@ -129,6 +129,34 @@ export const Posts: CollectionConfig<'posts'> = {
               hasMany: true,
               relationTo: 'categories',
             },
+            {
+              name: 'age_groups',
+              type: 'relationship',
+              admin: {
+                position: 'sidebar',
+                description: 'Leeftijdsgroepen waarvoor dit artikel relevant is',
+              },
+              hasMany: true,
+              relationTo: 'age_groups',
+            },
+            {
+              name: 'reading_time',
+              type: 'number',
+              min: 1,
+              admin: {
+                position: 'sidebar',
+                description: 'Geschatte leestijd in minuten',
+              },
+            },
+            {
+              name: 'featured',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                position: 'sidebar',
+                description: 'Markeer als uitgelicht artikel',
+              },
+            },
           ],
           label: 'Meta',
         },

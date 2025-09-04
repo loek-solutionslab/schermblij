@@ -5,16 +5,22 @@ import type { Page } from '@/payload-types'
 
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { CallToActionRelumeBlock } from '@/blocks/CallToActionRelume/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
+import { FooterBlock } from '@/blocks/FooterBlock/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { NavigationBlock } from '@/blocks/Navigation/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
+  'cta-relume': CallToActionRelumeBlock,
+  'footer-block': FooterBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  navigation: NavigationBlock,
 }
 
 export const RenderBlocks: React.FC<{

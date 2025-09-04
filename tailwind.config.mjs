@@ -1,3 +1,6 @@
+// tailwind.config.mjs
+import relumeTailwindPreset from "@relume_io/relume-tailwind";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -5,7 +8,9 @@ export default {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+    './node_modules/@relume_io/relume-ui/dist/**/*.{js,ts,jsx,tsx}',
   ],
+  presets: [relumeTailwindPreset],
   darkMode: ['selector', '[data-theme="dark"]'],
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
@@ -43,6 +48,62 @@ export default {
       },
     },
     extend: {
+      colors: {
+        // Your brand colors from style guide
+        'brand-main': '#4F758D',      // Smalt Blue (Main)
+        'brand-green': '#01B09A',     // Persian Green
+        'brand-red': '#FF6B6B',       // Bittersweet
+        'brand-cream': '#F3E9DF',     // Merino
+        'brand-light-blue': '#A2D2E2', // Regent St Blue
+        
+        // Map to semantic colors for easier use
+        primary: {
+          DEFAULT: '#4F758D', // Smalt Blue
+          foreground: '#FFFFFF',
+        },
+        secondary: {
+          DEFAULT: '#A2D2E2', // Regent St Blue
+          foreground: '#000000',
+        },
+        accent: {
+          DEFAULT: '#01B09A', // Persian Green
+          foreground: '#FFFFFF',
+        },
+        destructive: {
+          DEFAULT: '#FF6B6B', // Bittersweet
+          foreground: '#FFFFFF',
+        },
+        muted: {
+          DEFAULT: '#F3E9DF', // Merino
+          foreground: '#4F758D',
+        },
+        
+        // Keep existing system colors
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        border: 'hsla(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        success: '#01B09A', // Using Persian Green for success
+        error: '#FF6B6B',    // Using Bittersweet for error
+        warning: 'hsl(var(--warning))',
+      },
+      fontFamily: {
+        // Your brand fonts from style guide
+        sans: ['Nunito Sans', 'system-ui', 'sans-serif'], // Heading font
+        body: ['Quicksand', 'system-ui', 'sans-serif'],    // Body font
+        
+        // Keep existing mono font
+        mono: ['var(--font-geist-mono)', 'monospace'],
+      },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
@@ -51,48 +112,6 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-      },
-      colors: {
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        background: 'hsl(var(--background))',
-        border: 'hsla(var(--border))',
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
-        foreground: 'hsl(var(--foreground))',
-        input: 'hsl(var(--input))',
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
-        },
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        ring: 'hsl(var(--ring))',
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        success: 'hsl(var(--success))',
-        error: 'hsl(var(--error))',
-        warning: 'hsl(var(--warning))',
-      },
-      fontFamily: {
-        mono: ['var(--font-geist-mono)'],
-        sans: ['var(--font-geist-sans)'],
       },
       keyframes: {
         'accordion-down': {
@@ -109,10 +128,36 @@ export default {
           css: {
             '--tw-prose-body': 'var(--text)',
             '--tw-prose-headings': 'var(--text)',
+            fontFamily: theme('fontFamily.body').join(', '),
             h1: {
+              fontFamily: theme('fontFamily.sans').join(', '),
               fontSize: '3.5rem',
-              fontWeight: 'normal',
+              fontWeight: '600', // Medium weight as specified
               marginBottom: '0.25em',
+            },
+            h2: {
+              fontFamily: theme('fontFamily.sans').join(', '),
+              fontWeight: '600',
+            },
+            h3: {
+              fontFamily: theme('fontFamily.sans').join(', '),
+              fontWeight: '600',
+            },
+            h4: {
+              fontFamily: theme('fontFamily.sans').join(', '),
+              fontWeight: '600',
+            },
+            h5: {
+              fontFamily: theme('fontFamily.sans').join(', '),
+              fontWeight: '600',
+            },
+            h6: {
+              fontFamily: theme('fontFamily.sans').join(', '),
+              fontWeight: '600',
+            },
+            p: {
+              fontFamily: theme('fontFamily.body').join(', '),
+              fontWeight: '500', // Regular-medium as specified
             },
           },
         },

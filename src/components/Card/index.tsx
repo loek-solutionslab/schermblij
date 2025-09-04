@@ -27,7 +27,16 @@ export const Card: React.FC<{
   const hasCategories = categories && Array.isArray(categories) && categories.length > 0
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
-  const href = `/${relationTo}/${slug}`
+  
+  // Map relationTo to correct path - posts should use blog path
+  const getHref = () => {
+    if (relationTo === 'posts') {
+      return `/blog/${slug}`
+    }
+    return `/${relationTo}/${slug}`
+  }
+  
+  const href = getHref()
 
   return (
     <article

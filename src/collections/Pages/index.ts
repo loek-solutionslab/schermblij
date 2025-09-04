@@ -4,9 +4,12 @@ import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { Archive } from '../../blocks/ArchiveBlock/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
+import { CallToActionRelume } from '../../blocks/CallToActionRelume/config'
 import { Content } from '../../blocks/Content/config'
+import { FooterBlock } from '../../blocks/FooterBlock/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { Navigation } from '../../blocks/Navigation/config'
 import { hero } from '@/heros/config'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
@@ -77,7 +80,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [CallToAction, CallToActionRelume, Content, FooterBlock, MediaBlock, Navigation, Archive, FormBlock],
               required: true,
             },
           ],

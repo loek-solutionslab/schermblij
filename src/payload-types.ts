@@ -6,10 +6,66 @@
  * and re-run `payload generate:types` to regenerate this file.
  */
 
+/**
+ * Supported timezones in IANA format.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "supportedTimezones".
+ */
+export type SupportedTimezones =
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
+
 export interface Config {
   auth: {
     users: UserAuthOperations;
   };
+  blocks: {};
   collections: {
     pages: Page;
     posts: Post;
@@ -17,9 +73,13 @@ export interface Config {
     categories: Category;
     users: User;
     comments: Comment;
+    age_groups: AgeGroup;
+    course_categories: CourseCategory;
+    courses: Course;
+    form_submissions: FormSubmission;
     redirects: Redirect;
     forms: Form;
-    'form-submissions': FormSubmission;
+    'form-submissions': FormSubmission1;
     search: Search;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -33,9 +93,13 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     comments: CommentsSelect<false> | CommentsSelect<true>;
+    age_groups: AgeGroupsSelect<false> | AgeGroupsSelect<true>;
+    course_categories: CourseCategoriesSelect<false> | CourseCategoriesSelect<true>;
+    courses: CoursesSelect<false> | CoursesSelect<true>;
+    form_submissions: FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
+    'form-submissions': FormSubmissionsSelect1<false> | FormSubmissionsSelect1<true>;
     search: SearchSelect<false> | SearchSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -47,10 +111,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -114,6 +180,9 @@ export interface Page {
             } | null;
             url?: string | null;
             label: string;
+            /**
+             * Choose how the link should be rendered.
+             */
             appearance?: ('default' | 'outline') | null;
           };
           id?: string | null;
@@ -121,9 +190,21 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CallToActionBlock
+    | CallToActionRelumeBlock
+    | ContentBlock
+    | FooterBlock
+    | MediaBlock
+    | NavigationBlock
+    | ArchiveBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
     image?: (number | null) | Media;
     description?: string | null;
   };
@@ -249,6 +330,9 @@ export interface CallToActionBlock {
           } | null;
           url?: string | null;
           label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
           appearance?: ('default' | 'outline') | null;
         };
         id?: string | null;
@@ -257,6 +341,39 @@ export interface CallToActionBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionRelumeBlock".
+ */
+export interface CallToActionRelumeBlock {
+  heading: string;
+  subheading?: string | null;
+  /**
+   * Optional image to display alongside the CTA form
+   */
+  image?: (number | null) | Media;
+  form_settings?: {
+    email_placeholder?: string | null;
+    button_text?: string | null;
+    success_message?: string | null;
+    error_message?: string | null;
+    /**
+     * Unique identifier for this form to track submissions
+     */
+    form_identifier?: string | null;
+  };
+  terms_and_conditions?: {
+    show_terms?: boolean | null;
+    terms_text?: string | null;
+    terms_link_text?: string | null;
+    terms_link_url?: string | null;
+  };
+  layout?: ('image-right' | 'image-left' | 'text-only' | 'centered') | null;
+  background_color?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta-relume';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -291,6 +408,9 @@ export interface ContentBlock {
           } | null;
           url?: string | null;
           label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
           appearance?: ('default' | 'outline') | null;
         };
         id?: string | null;
@@ -302,6 +422,85 @@ export interface ContentBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FooterBlock".
+ */
+export interface FooterBlock {
+  /**
+   * Logo image for footer. If not set, will use logo from Header global.
+   */
+  logo?: (number | null) | Media;
+  contact_info?: {
+    address_label?: string | null;
+    address?: string | null;
+    contact_label?: string | null;
+    phone?: string | null;
+    email?: string | null;
+  };
+  social_links?:
+    | {
+        platform: 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'youtube';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Groepen van links voor de footer navigatie
+   */
+  footer_links?:
+    | {
+        /**
+         * Optional title for link group. Leave empty for no title.
+         */
+        title?: string | null;
+        links?:
+          | {
+              label: string;
+              url: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  newsletter?: {
+    enabled?: boolean | null;
+    heading?: string | null;
+    description?: string | null;
+    button_text?: string | null;
+    placeholder_text?: string | null;
+  };
+  /**
+   * Logos van partners/sponsors om in de footer te tonen
+   */
+  partner_logos?:
+    | {
+        logo: number | Media;
+        name: string;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Links like Privacy Policy, Terms of Service, etc.
+   */
+  legal_links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  copyright_text?: string | null;
+  /**
+   * When enabled, this block will use the configuration from the Footer global instead of the fields above.
+   */
+  use_footer_config?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'footer-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock".
  */
 export interface MediaBlock {
@@ -309,6 +508,80 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NavigationBlock".
+ */
+export interface NavigationBlock {
+  /**
+   * Logo image for navigation. If not set, will use logo from Header global.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Navigation menu items. Can be simple links or dropdown/mega menus.
+   */
+  menu_items?:
+    | {
+        label: string;
+        type: 'link' | 'dropdown' | 'mega_menu';
+        url?: string | null;
+        dropdown_sections?:
+          | {
+              section_title: string;
+              items?:
+                | {
+                    label: string;
+                    url: string;
+                    description?: string | null;
+                    icon?: (number | null) | Media;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        simple_dropdown_items?:
+          | {
+              label: string;
+              url: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional featured content for mega menu (like blog post or promotional content)
+         */
+        featured_content?: {
+          title?: string | null;
+          subtitle?: string | null;
+          description?: string | null;
+          image?: (number | null) | Media;
+          link_text?: string | null;
+          link_url?: string | null;
+          view_all_text?: string | null;
+          view_all_url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Call-to-action buttons shown on the right side of navigation
+   */
+  cta_buttons?:
+    | {
+        text: string;
+        url: string;
+        style?: ('primary' | 'secondary') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, this block will use the menu configuration from the Header global instead of the fields above.
+   */
+  use_header_config?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'navigation';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -387,8 +660,23 @@ export interface Post {
   };
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
+  /**
+   * Leeftijdsgroepen waarvoor dit artikel relevant is
+   */
+  age_groups?: (number | AgeGroup)[] | null;
+  /**
+   * Geschatte leestijd in minuten
+   */
+  reading_time?: number | null;
+  /**
+   * Markeer als uitgelicht artikel
+   */
+  featured?: boolean | null;
   meta?: {
     title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
     image?: (number | null) | Media;
     description?: string | null;
   };
@@ -408,6 +696,53 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "age_groups".
+ */
+export interface AgeGroup {
+  id: number;
+  name: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Minimale leeftijd in jaren
+   */
+  min_age: number;
+  /**
+   * Maximale leeftijd in jaren
+   */
+  max_age: number;
+  /**
+   * Icoon voor deze leeftijdsgroep
+   */
+  icon?: (number | null) | Media;
+  /**
+   * Volgorde voor weergave (lagere nummers eerst)
+   */
+  order?: number | null;
+  /**
+   * Hex kleurcode voor UI theming (bijv. #FF5733)
+   */
+  color?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -422,6 +757,13 @@ export interface User {
   hash?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
   password?: string | null;
 }
 /**
@@ -522,6 +864,7 @@ export interface Form {
             label?: string | null;
             width?: number | null;
             defaultValue?: string | null;
+            placeholder?: string | null;
             options?:
               | {
                   label: string;
@@ -566,6 +909,9 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
+  /**
+   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
+   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
@@ -585,6 +931,9 @@ export interface Form {
   redirect?: {
     url: string;
   };
+  /**
+   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
+   */
   emails?:
     | {
         emailTo?: string | null;
@@ -593,6 +942,9 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
+        /**
+         * Enter the message that should be sent in this email.
+         */
         message?: {
           root: {
             type: string;
@@ -615,6 +967,8 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * Comments submitted by visitors on blog posts
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "comments".
  */
@@ -626,8 +980,242 @@ export interface Comment {
     email: string;
   };
   post: number | Post;
+  /**
+   * Comments must be approved before they appear publicly
+   */
   isApproved?: boolean | null;
   publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course_categories".
+ */
+export interface CourseCategory {
+  id: number;
+  name: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Icoon voor deze cursuscategorie
+   */
+  icon?: (number | null) | Media;
+  /**
+   * Volgorde voor weergave (lagere nummers eerst)
+   */
+  order?: number | null;
+  /**
+   * Doelgroep voor deze cursuscategorie
+   */
+  target_audience: 'parents' | 'professionals' | 'municipalities' | 'daycare';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: number;
+  /**
+   * Naam van de cursus
+   */
+  title: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  /**
+   * Beschrijving van de cursus
+   */
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Cursuscategorie
+   */
+  category: number | CourseCategory;
+  /**
+   * Leeftijdsgroepen waarvoor deze cursus geschikt is
+   */
+  age_groups?: (number | AgeGroup)[] | null;
+  /**
+   * Prijs in euro's
+   */
+  price?: number | null;
+  /**
+   * Duur van de cursus in minuten
+   */
+  duration_minutes?: number | null;
+  /**
+   * Format van de cursus
+   */
+  format?: ('online' | 'physical' | 'hybrid') | null;
+  /**
+   * Maximum aantal deelnemers
+   */
+  max_participants?: number | null;
+  /**
+   * Uitgelichte afbeelding voor de cursus
+   */
+  featured_image?: (number | null) | Media;
+  /**
+   * Inhoud blokken voor gedetailleerde cursuspagina
+   */
+  content_blocks?: (BannerBlock | CodeBlock | MediaBlock)[] | null;
+  /**
+   * Testimonials van cursusdeelnemers
+   */
+  testimonials?:
+    | {
+        /**
+         * Testimonial tekst
+         */
+        testimonial: string;
+        /**
+         * Naam van de auteur (optioneel)
+         */
+        author?: string | null;
+        /**
+         * Rol/functie van de auteur (optioneel)
+         */
+        role?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Aankomende cursusdata
+   */
+  upcoming_dates?:
+    | {
+        /**
+         * Datum en tijd van de cursus
+         */
+        date: string;
+        /**
+         * Locatie (voor fysieke of hybride cursussen)
+         */
+        location?: string | null;
+        /**
+         * Aantal beschikbare plekken
+         */
+        available_spots?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Status van de cursus
+   */
+  status?: ('active' | 'archived' | 'draft') | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language?: ('typescript' | 'javascript' | 'css') | null;
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form_submissions".
+ */
+export interface FormSubmission {
+  id: number;
+  /**
+   * Type formulier dat is ingevuld
+   */
+  form_type: 'contact' | 'enrollment' | 'newsletter' | 'download';
+  /**
+   * Naam van de persoon
+   */
+  name: string;
+  /**
+   * E-mailadres van de persoon
+   */
+  email: string;
+  /**
+   * Telefoonnummer (optioneel)
+   */
+  phone?: string | null;
+  /**
+   * Bericht of vraag
+   */
+  message?: string | null;
+  /**
+   * Gerelateerde cursus (indien van toepassing)
+   */
+  course_reference?: (number | null) | Course;
+  /**
+   * Datum en tijd van inzending
+   */
+  submitted_at?: string | null;
+  /**
+   * Status van de inzending
+   */
+  status?: ('new' | 'contacted' | 'completed') | null;
+  /**
+   * Interne notities voor beheerders
+   */
+  admin_notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -637,6 +1225,9 @@ export interface Comment {
  */
 export interface Redirect {
   id: number;
+  /**
+   * You will need to rebuild the website when changing this field.
+   */
   from: string;
   to?: {
     type?: ('reference' | 'custom') | null;
@@ -658,7 +1249,7 @@ export interface Redirect {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
-export interface FormSubmission {
+export interface FormSubmission1 {
   id: number;
   form: number | Form;
   submissionData?:
@@ -672,6 +1263,8 @@ export interface FormSubmission {
   createdAt: string;
 }
 /**
+ * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "search".
  */
@@ -731,6 +1324,22 @@ export interface PayloadLockedDocument {
         value: number | Comment;
       } | null)
     | ({
+        relationTo: 'age_groups';
+        value: number | AgeGroup;
+      } | null)
+    | ({
+        relationTo: 'course_categories';
+        value: number | CourseCategory;
+      } | null)
+    | ({
+        relationTo: 'courses';
+        value: number | Course;
+      } | null)
+    | ({
+        relationTo: 'form_submissions';
+        value: number | FormSubmission;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -740,7 +1349,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'form-submissions';
-        value: number | FormSubmission;
+        value: number | FormSubmission1;
       } | null)
     | ({
         relationTo: 'search';
@@ -819,80 +1428,14 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        cta?:
-          | T
-          | {
-              richText?: T;
-              links?:
-                | T
-                | {
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          newTab?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                          appearance?: T;
-                        };
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        content?:
-          | T
-          | {
-              columns?:
-                | T
-                | {
-                    size?: T;
-                    richText?: T;
-                    enableLink?: T;
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          newTab?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                          appearance?: T;
-                        };
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        mediaBlock?:
-          | T
-          | {
-              media?: T;
-              id?: T;
-              blockName?: T;
-            };
-        archive?:
-          | T
-          | {
-              introContent?: T;
-              populateBy?: T;
-              relationTo?: T;
-              categories?: T;
-              limit?: T;
-              selectedDocs?: T;
-              id?: T;
-              blockName?: T;
-            };
-        formBlock?:
-          | T
-          | {
-              form?: T;
-              enableIntro?: T;
-              introContent?: T;
-              id?: T;
-              blockName?: T;
-            };
+        cta?: T | CallToActionBlockSelect<T>;
+        'cta-relume'?: T | CallToActionRelumeBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        'footer-block'?: T | FooterBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        navigation?: T | NavigationBlockSelect<T>;
+        archive?: T | ArchiveBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
       };
   meta?:
     | T
@@ -910,6 +1453,244 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock_select".
+ */
+export interface CallToActionBlockSelect<T extends boolean = true> {
+  richText?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionRelumeBlock_select".
+ */
+export interface CallToActionRelumeBlockSelect<T extends boolean = true> {
+  heading?: T;
+  subheading?: T;
+  image?: T;
+  form_settings?:
+    | T
+    | {
+        email_placeholder?: T;
+        button_text?: T;
+        success_message?: T;
+        error_message?: T;
+        form_identifier?: T;
+      };
+  terms_and_conditions?:
+    | T
+    | {
+        show_terms?: T;
+        terms_text?: T;
+        terms_link_text?: T;
+        terms_link_url?: T;
+      };
+  layout?: T;
+  background_color?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock_select".
+ */
+export interface ContentBlockSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        size?: T;
+        richText?: T;
+        enableLink?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FooterBlock_select".
+ */
+export interface FooterBlockSelect<T extends boolean = true> {
+  logo?: T;
+  contact_info?:
+    | T
+    | {
+        address_label?: T;
+        address?: T;
+        contact_label?: T;
+        phone?: T;
+        email?: T;
+      };
+  social_links?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  footer_links?:
+    | T
+    | {
+        title?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  newsletter?:
+    | T
+    | {
+        enabled?: T;
+        heading?: T;
+        description?: T;
+        button_text?: T;
+        placeholder_text?: T;
+      };
+  partner_logos?:
+    | T
+    | {
+        logo?: T;
+        name?: T;
+        url?: T;
+        id?: T;
+      };
+  legal_links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  copyright_text?: T;
+  use_footer_config?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock_select".
+ */
+export interface MediaBlockSelect<T extends boolean = true> {
+  media?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NavigationBlock_select".
+ */
+export interface NavigationBlockSelect<T extends boolean = true> {
+  logo?: T;
+  menu_items?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        url?: T;
+        dropdown_sections?:
+          | T
+          | {
+              section_title?: T;
+              items?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    description?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        simple_dropdown_items?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        featured_content?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              description?: T;
+              image?: T;
+              link_text?: T;
+              link_url?: T;
+              view_all_text?: T;
+              view_all_url?: T;
+            };
+        id?: T;
+      };
+  cta_buttons?:
+    | T
+    | {
+        text?: T;
+        url?: T;
+        style?: T;
+        id?: T;
+      };
+  use_header_config?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveBlock_select".
+ */
+export interface ArchiveBlockSelect<T extends boolean = true> {
+  introContent?: T;
+  populateBy?: T;
+  relationTo?: T;
+  categories?: T;
+  limit?: T;
+  selectedDocs?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock_select".
+ */
+export interface FormBlockSelect<T extends boolean = true> {
+  form?: T;
+  enableIntro?: T;
+  introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -917,6 +1698,9 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   relatedPosts?: T;
   categories?: T;
+  age_groups?: T;
+  reading_time?: T;
+  featured?: T;
   meta?:
     | T
     | {
@@ -1054,6 +1838,13 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1070,6 +1861,120 @@ export interface CommentsSelect<T extends boolean = true> {
   post?: T;
   isApproved?: T;
   publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "age_groups_select".
+ */
+export interface AgeGroupsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  slugLock?: T;
+  description?: T;
+  min_age?: T;
+  max_age?: T;
+  icon?: T;
+  order?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course_categories_select".
+ */
+export interface CourseCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  slugLock?: T;
+  description?: T;
+  icon?: T;
+  order?: T;
+  target_audience?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  slugLock?: T;
+  description?: T;
+  category?: T;
+  age_groups?: T;
+  price?: T;
+  duration_minutes?: T;
+  format?: T;
+  max_participants?: T;
+  featured_image?: T;
+  content_blocks?:
+    | T
+    | {
+        banner?: T | BannerBlockSelect<T>;
+        code?: T | CodeBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+      };
+  testimonials?:
+    | T
+    | {
+        testimonial?: T;
+        author?: T;
+        role?: T;
+        id?: T;
+      };
+  upcoming_dates?:
+    | T
+    | {
+        date?: T;
+        location?: T;
+        available_spots?: T;
+        id?: T;
+      };
+  status?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock_select".
+ */
+export interface BannerBlockSelect<T extends boolean = true> {
+  style?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock_select".
+ */
+export interface CodeBlockSelect<T extends boolean = true> {
+  language?: T;
+  code?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form_submissions_select".
+ */
+export interface FormSubmissionsSelect<T extends boolean = true> {
+  form_type?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
+  course_reference?: T;
+  submitted_at?: T;
+  status?: T;
+  admin_notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1154,6 +2059,7 @@ export interface FormsSelect<T extends boolean = true> {
               label?: T;
               width?: T;
               defaultValue?: T;
+              placeholder?: T;
               options?:
                 | T
                 | {
@@ -1225,7 +2131,7 @@ export interface FormsSelect<T extends boolean = true> {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions_select".
  */
-export interface FormSubmissionsSelect<T extends boolean = true> {
+export interface FormSubmissionsSelect1<T extends boolean = true> {
   form?: T;
   submissionData?:
     | T
@@ -1301,6 +2207,39 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: number;
+  logo?: (number | null) | Media;
+  menu_items?:
+    | {
+        label: string;
+        type: 'link' | 'dropdown' | 'mega_menu';
+        url?: string | null;
+        children?:
+          | {
+              label: string;
+              url: string;
+              description?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Select age groups to display in navigation menu
+   */
+  age_groups_menu?: (number | AgeGroup)[] | null;
+  /**
+   * Select course categories to display in navigation menu
+   */
+  course_categories_menu?: (number | CourseCategory)[] | null;
+  cta_button?: {
+    text?: string | null;
+    url?: string | null;
+    style?: ('primary' | 'secondary') | null;
+  };
+  /**
+   * This field is deprecated. Use menu_items instead.
+   */
   navItems?:
     | {
         link: {
@@ -1325,6 +2264,44 @@ export interface Header {
  */
 export interface Footer {
   id: number;
+  contact_info?: {
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  };
+  social_links?:
+    | {
+        platform: 'facebook' | 'instagram' | 'linkedin' | 'youtube';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  newsletter?: {
+    heading?: string | null;
+    description?: string | null;
+    button_text?: string | null;
+  };
+  footer_links?:
+    | {
+        title: string;
+        links?:
+          | {
+              label: string;
+              url: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Logos of partners/sponsors to display in footer
+   */
+  partner_logos?: (number | Media)[] | null;
+  copyright_text?: string | null;
+  /**
+   * This field is deprecated. Use footer_links instead.
+   */
   navItems?:
     | {
         link: {
@@ -1345,9 +2322,92 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  site_name: string;
+  /**
+   * Short description or motto for the site
+   */
+  tagline?: string | null;
+  default_seo?: {
+    /**
+     * Used when pages don't have their own title
+     */
+    meta_title?: string | null;
+    /**
+     * Used when pages don't have their own description
+     */
+    meta_description?: string | null;
+    /**
+     * Default image for social media sharing
+     */
+    og_image?: (number | null) | Media;
+  };
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+    /**
+     * Include country code (e.g., +31)
+     */
+    whatsapp?: string | null;
+    address?: string | null;
+    /**
+     * Chamber of Commerce registration number
+     */
+    kvk_number?: string | null;
+  };
+  social_media?: {
+    facebook_url?: string | null;
+    instagram_url?: string | null;
+    linkedin_url?: string | null;
+    youtube_url?: string | null;
+  };
+  analytics?: {
+    /**
+     * Google Analytics 4 measurement ID
+     */
+    google_analytics_id?: string | null;
+    /**
+     * Google Tag Manager container ID
+     */
+    google_tag_manager_id?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
+  logo?: T;
+  menu_items?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        url?: T;
+        children?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              description?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  age_groups_menu?: T;
+  course_categories_menu?: T;
+  cta_button?:
+    | T
+    | {
+        text?: T;
+        url?: T;
+        style?: T;
+      };
   navItems?:
     | T
     | {
@@ -1371,6 +2431,42 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  contact_info?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        address?: T;
+      };
+  social_links?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  newsletter?:
+    | T
+    | {
+        heading?: T;
+        description?: T;
+        button_text?: T;
+      };
+  footer_links?:
+    | T
+    | {
+        title?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  partner_logos?: T;
+  copyright_text?: T;
   navItems?:
     | T
     | {
@@ -1391,39 +2487,44 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
+ * via the `definition` "site-settings_select".
  */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
+export interface SiteSettingsSelect<T extends boolean = true> {
+  site_name?: T;
+  tagline?: T;
+  default_seo?:
+    | T
+    | {
+        meta_title?: T;
+        meta_description?: T;
+        og_image?: T;
+      };
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        whatsapp?: T;
+        address?: T;
+        kvk_number?: T;
+      };
+  social_media?:
+    | T
+    | {
+        facebook_url?: T;
+        instagram_url?: T;
+        linkedin_url?: T;
+        youtube_url?: T;
+      };
+  analytics?:
+    | T
+    | {
+        google_analytics_id?: T;
+        google_tag_manager_id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

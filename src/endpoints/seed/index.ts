@@ -81,9 +81,7 @@ export const seed = async ({
     for (const global of globals) {
       await payload.updateGlobal({
         slug: global,
-        data: {
-          navItems: []
-        }
+        data: {}
       })
     }
 
