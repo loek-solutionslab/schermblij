@@ -5,8 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true payload migrate && cross-env NODE_OPTIONS=--no-deprecation next build",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "migrate": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true NODE_OPTIONS=--no-deprecation payload migrate",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
