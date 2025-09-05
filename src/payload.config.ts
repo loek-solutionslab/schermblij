@@ -69,8 +69,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    // Enable push mode when PAYLOAD_DATABASE_SYNC is set
-    push: process.env.PAYLOAD_DATABASE_SYNC === 'true',
+    // Enable push mode when PAYLOAD_DATABASE_SYNC is set or in development
+    push: process.env.PAYLOAD_DATABASE_SYNC === 'true' || process.env.NODE_ENV !== 'production',
   }),
   collections: [Pages, Posts, Media, Categories, Users, Comments, AgeGroups, CourseCategories, Courses, FormSubmissions],
   cors: [getServerSideURL()].filter(Boolean),
