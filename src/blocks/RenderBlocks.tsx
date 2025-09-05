@@ -9,6 +9,10 @@ import { CallToActionRelumeBlock } from '@/blocks/CallToActionRelume/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FooterBlock } from '@/blocks/FooterBlock/Component'
 import { FormBlock } from '@/blocks/Form/Component'
+import { Header05Block } from '@/blocks/Header05/Component'
+import { Layout01Block } from '@/blocks/Layout01/Component'
+import { Layout03Block } from '@/blocks/Layout03/Component'
+import { Layout04Block } from '@/blocks/Layout04/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { NavigationBlock } from '@/blocks/Navigation/Component'
 
@@ -19,9 +23,13 @@ const blockComponents = {
   'cta-relume': CallToActionRelumeBlock,
   'footer-block': FooterBlock,
   formBlock: FormBlock,
+  header05: Header05Block,
+  layout01: Layout01Block,
+  layout03: Layout03Block,
+  layout04: Layout04Block,
   mediaBlock: MediaBlock,
   navigation: NavigationBlock,
-}
+} as const
 
 export const RenderBlocks: React.FC<{
   blocks: Page['layout'][0][]
@@ -37,13 +45,12 @@ export const RenderBlocks: React.FC<{
           const { blockType } = block
 
           if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
+            const Block = blockComponents[blockType as keyof typeof blockComponents]
 
             if (Block) {
               return (
                 <div className="my-16" key={index}>
-                  {/* @ts-expect-error */}
-                  <Block {...block} />
+                  <Block {...(block as any)} />
                 </div>
               )
             }
