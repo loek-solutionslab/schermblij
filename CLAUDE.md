@@ -40,23 +40,82 @@ export async function up({ payload, req }: MigrateUpArgs): Promise<void> {
 
 **Always verify dependencies exist in package.json before using them in components.**
 
-### 4. Migration Prompt Blocking Deployment
-**Problem**: When using same database for dev and production with push mode, Payload prompts for confirmation during migration, blocking deployment.
+### 4. Railway/Nixpacks Migration Prompt Blocking Deployment
+**Problem**: Railway/Nixpacks auto-detects and runs migrate script during build, causing deployment to hang on interactive prompts.
 
-**Solution**: Skip migrations when database is already in sync:
+**Root Cause**: When developing with push mode on same database as production, migration files exist but schema is already applied, causing Payload to prompt for confirmation.
+
+**Solution 1 - Skip problematic migrate script**:
 ```json
-// package.json
-"migrate": "echo 'Skipping migrations - database already in sync'",
-"migrate:force": "payload migrate"  // Use only when actually needed
+// package.json - For Railway deployment
+"migrate": "echo 'Skipping migration - using push mode for schema sync'",
+"build": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation next build"
 ```
 
-### 5. Sharp Module Build Issues (Local Only)
+**Solution 2 - Use proper migration workflow** (preferred for production):
+```json
+// package.json - For traditional deployments
+"migrate": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true payload migrate",
+"build": "payload migrate && next build"
+```
+
+### 5. Payload Block Type Validation Errors
+**Problem**: TypeScript errors when using wrong blockType names or incorrect block field structure.
+
+**CRITICAL**: Always check available block types before creating static content:
+```typescript
+// Check src/blocks/RenderBlocks.tsx for available blockTypes
+const blockComponents = {
+  archive: ArchiveBlock,
+  content: ContentBlock,    // Uses columns array with richText
+  cta: CallToActionBlock,   // Uses richText and links array
+  'cta-relume': CallToActionRelumeBlock,
+  'footer-block': FooterBlock,
+  formBlock: FormBlock,
+  header05: Header05Block,  // NOT header01
+  layout01: Layout01Block,  // Requires image field (required)
+  layout03: Layout03Block,
+  layout04: Layout04Block,
+  mediaBlock: MediaBlock,
+  navigation: NavigationBlock,
+}
+```
+
+**Common Mistakes**:
+- Using `header01` instead of available blocks like `header05` or `content`
+- Wrong field structure (e.g., `richText` directly instead of `columns[].richText` for ContentBlock)
+- Missing required fields (e.g., `image` field for Layout01Block)
+- Invalid `appearance` values for buttons (use 'default', 'outline', not 'primary')
+
+**Always verify block field structure by checking the block's config.ts file.**
+
+### 6. TypeScript Static Content Type Errors  
+**Problem**: TypeScript errors when creating static content that doesn't match Payload's generated types.
+
+**Common Issues**:
+- Static Page content missing required fields like `id`, `updatedAt`, `createdAt`
+- Type casting conflicts between static and dynamic content
+
+**Solutions**:
+```typescript
+// For static content, use Partial<Page> type
+export const homeStatic: Partial<Page> & Pick<Page, 'slug' | '_status'> = {
+  slug: 'home',
+  _status: 'published',
+  // ... rest of content
+}
+
+// When using in components, cast to full Page type
+page = homeStatic as PageType
+```
+
+### 7. Sharp Module Build Issues (Local Only)
 **Problem**: Sharp may fail to build on local Mac environments.
 
 **This does NOT affect production deployments** - Railway/Vercel have proper build environments.
 
 **Local workarounds**:
-- Use `pnpm rebuild sharp` after install
+- Use `pnpm rebuild sharp` after install  
 - Or temporarily work without image optimization locally
 
 ## CRITICAL WARNINGS - READ BEFORE STARTING
