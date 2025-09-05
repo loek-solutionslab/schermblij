@@ -69,6 +69,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    // Temporarily enable push mode for both dev and production to sync schema
+    push: true,
   }),
   collections: [Pages, Posts, Media, Categories, Users, Comments, AgeGroups, CourseCategories, Courses, FormSubmissions],
   cors: [getServerSideURL()].filter(Boolean),

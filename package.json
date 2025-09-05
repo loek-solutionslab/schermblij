@@ -7,7 +7,7 @@
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
-    "migrate": "echo 'Skipping migrations - database already in sync from development'",
+    "migrate": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation echo 'Using push mode for deployment'",
     "migrate:force": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true NODE_OPTIONS=--no-deprecation payload migrate",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
