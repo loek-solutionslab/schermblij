@@ -13,6 +13,7 @@ import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
 import { post4 } from './post-4'
+import { seedSchermBlijContent } from './schermblij-content'
 
 const collections: CollectionSlug[] = [
   'categories',
@@ -415,6 +416,11 @@ export const seed = async ({
         ]
       }
     })
+
+    // Seed SchermBlij specific content
+    payload.logger.info(`— Seeding SchermBlij content...`)
+    const schermBlijResults = await seedSchermBlijContent()
+    payload.logger.info(`— SchermBlij content seeded: ${schermBlijResults.ageGroups} age groups, ${schermBlijResults.categories} categories, ${schermBlijResults.courses} courses, ${schermBlijResults.blogPosts} blog posts`)
 
     payload.logger.info('✨ Database seeded successfully!')
   } catch (error) {
