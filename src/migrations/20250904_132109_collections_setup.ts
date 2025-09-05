@@ -1,7 +1,7 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.execute(sql`
+export async function up({ payload, req }: MigrateUpArgs): Promise<void> {
+  await payload.db.drizzle.execute(sql`
    CREATE TYPE "public"."enum_course_categories_target_audience" AS ENUM('parents', 'professionals', 'municipalities', 'daycare');
   CREATE TYPE "public"."enum_courses_blocks_banner_style" AS ENUM('info', 'warning', 'error', 'success');
   CREATE TYPE "public"."enum_courses_blocks_code_language" AS ENUM('typescript', 'javascript', 'css');
@@ -427,8 +427,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE UNIQUE INDEX "redirects_from_idx" ON "redirects" USING btree ("from");`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.execute(sql`
+export async function down({ payload, req }: MigrateDownArgs): Promise<void> {
+  await payload.db.drizzle.execute(sql`
    ALTER TABLE "users_sessions" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "age_groups" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "course_categories" DISABLE ROW LEVEL SECURITY;
