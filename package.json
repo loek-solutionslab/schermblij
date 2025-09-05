@@ -5,7 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "build": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation next build",
+    "build:next": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "migrate": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation echo 'Using push mode for deployment'",
     "migrate:force": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true NODE_OPTIONS=--no-deprecation payload migrate",

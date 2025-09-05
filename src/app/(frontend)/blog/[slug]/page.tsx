@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 
+// Temporarily disable static generation to allow database schema sync
+export const dynamic = 'force-dynamic'
+
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
