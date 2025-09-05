@@ -3,6 +3,62 @@
 
 This file provides comprehensive guidance to Claude Code (claude.ai/code) when working with code in this repository. It contains critical setup instructions, migration best practices, and deployment guidelines for Payload CMS V3.
 
+## 🚨 CRITICAL BUILD ISSUES - ALWAYS CHECK THESE FIRST
+
+### 1. ALWAYS Test Build Locally Before Committing
+```bash
+# REQUIRED: Test build before EVERY commit
+pnpm run build
+
+# If build fails, DO NOT commit until fixed
+# This prevents deployment failures and saves hours of debugging
+```
+
+### 2. Migration API Compatibility Issues
+**Problem**: Migration files may use incorrect MigrateUpArgs interface.
+
+**WRONG** (causes TypeScript errors):
+```typescript
+export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  await db.execute(sql`...`)
+}
+```
+
+**CORRECT**:
+```typescript
+export async function up({ payload, req }: MigrateUpArgs): Promise<void> {
+  await payload.db.drizzle.execute(sql`...`)
+}
+```
+
+### 3. Missing Dependencies for UI Components
+**Common missing dependencies that cause build failures:**
+- `framer-motion` - Required for animations in Relume components
+- `react-icons` - Required for icon components
+- `lucide-react` - Required for Lucide icons
+- `clsx` and `tailwind-merge` - Required for className utilities
+
+**Always verify dependencies exist in package.json before using them in components.**
+
+### 4. Migration Prompt Blocking Deployment
+**Problem**: When using same database for dev and production with push mode, Payload prompts for confirmation during migration, blocking deployment.
+
+**Solution**: Skip migrations when database is already in sync:
+```json
+// package.json
+"migrate": "echo 'Skipping migrations - database already in sync'",
+"migrate:force": "payload migrate"  // Use only when actually needed
+```
+
+### 5. Sharp Module Build Issues (Local Only)
+**Problem**: Sharp may fail to build on local Mac environments.
+
+**This does NOT affect production deployments** - Railway/Vercel have proper build environments.
+
+**Local workarounds**:
+- Use `pnpm rebuild sharp` after install
+- Or temporarily work without image optimization locally
+
 ## CRITICAL WARNINGS - READ BEFORE STARTING
 
 ### THE CARDINAL RULE: Never Mix Push Mode with Production
@@ -458,15 +514,29 @@ fields: [
 
 Before EVERY deployment:
 
+### Build Verification (MANDATORY)
+- [ ] **Run `pnpm run build` locally** - MUST pass without errors
+- [ ] Check for TypeScript errors in migration files
+- [ ] Verify all component dependencies are in package.json
+- [ ] Test that Sharp builds or handle gracefully if it doesn't
+
+### Migration Checks
 - [ ] Schema changes tested locally with push mode
-- [ ] Migration file generated for any schema changes
-- [ ] Migration tested locally
+- [ ] Migration file generated for any schema changes (if needed)
+- [ ] Check migration uses correct API: `{ payload, req }` NOT `{ db, payload, req }`
+- [ ] If using same DB for dev/prod, consider skipping migrations to avoid prompts
+
+### Environment Configuration
 - [ ] Production environment variables configured correctly
 - [ ] `PAYLOAD_MIGRATE_SKIP_PROMPT=true` set in production
 - [ ] NO `PAYLOAD_DATABASE_SYNC` in production
 - [ ] Migration files committed to git
-- [ ] Build tested locally with `pnpm build`
 - [ ] TypeScript types generated and committed
+
+### Final Steps
+- [ ] Build tested locally with `pnpm build` - AGAIN before commit
+- [ ] All files committed and pushed
+- [ ] Monitor deployment logs for any interactive prompts
 
 ---
 
@@ -491,6 +561,23 @@ Before EVERY deployment:
 - Production data not matching expected schema
 
 ---
+
+## Common Build Error Solutions
+
+### Error: "Property 'db' does not exist on type 'MigrateUpArgs'"
+**Solution**: Update migration file to use `{ payload, req }` instead of `{ db, payload, req }`
+
+### Error: "Cannot find module 'framer-motion'" (or similar)
+**Solution**: Install missing dependency: `pnpm add framer-motion`
+
+### Error: "Cannot redeclare exported variable"
+**Solution**: Check for duplicate exports or exclude file from TypeScript compilation
+
+### Deployment Stuck: "Would you like to proceed? › (y/N)"
+**Solution**: Update migrate script in package.json to skip migrations or use non-interactive mode
+
+### Error: Sharp module build failure (local only)
+**Solution**: This won't affect production. Try `pnpm rebuild sharp` or continue without it locally
 
 ## Emergency Recovery Procedures
 
