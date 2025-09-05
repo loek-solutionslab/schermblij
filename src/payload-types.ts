@@ -145,6 +145,7 @@ export interface Page {
     | ArchiveBlock
     | FormBlock
     | TestimonialBlock
+    | FAQBlock
   )[];
   meta?: {
     title?: string | null;
@@ -979,6 +980,45 @@ export interface TestimonialBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FAQBlock".
+ */
+export interface FAQBlock {
+  heading: string;
+  description?: string | null;
+  questions?:
+    | {
+        question: string;
+        answer: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  contactSection?: {
+    showContact?: boolean | null;
+    title?: string | null;
+    description?: string | null;
+    buttonText?: string | null;
+    buttonLink?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "comments".
  */
 export interface Comment {
@@ -1670,6 +1710,30 @@ export interface PagesSelect<T extends boolean = true> {
                           logo?: T;
                         };
                     id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              questions?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              contactSection?:
+                | T
+                | {
+                    showContact?: T;
+                    title?: T;
+                    description?: T;
+                    buttonText?: T;
+                    buttonLink?: T;
                   };
               id?: T;
               blockName?: T;
