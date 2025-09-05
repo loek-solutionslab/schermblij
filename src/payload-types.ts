@@ -144,6 +144,7 @@ export interface Page {
     | NavigationBlock
     | ArchiveBlock
     | FormBlock
+    | TestimonialBlock
   )[];
   meta?: {
     title?: string | null;
@@ -951,6 +952,33 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialBlock".
+ */
+export interface TestimonialBlock {
+  heading: string;
+  subheading?: string | null;
+  testimonials?:
+    | {
+        rating: number;
+        quote: string;
+        author: {
+          name: string;
+          title?: string | null;
+          avatar?: (number | null) | Media;
+        };
+        company?: {
+          name?: string | null;
+          logo?: (number | null) | Media;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonial';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "comments".
  */
 export interface Comment {
@@ -1615,6 +1643,34 @@ export interface PagesSelect<T extends boolean = true> {
               form?: T;
               enableIntro?: T;
               introContent?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonial?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              testimonials?:
+                | T
+                | {
+                    rating?: T;
+                    quote?: T;
+                    author?:
+                      | T
+                      | {
+                          name?: T;
+                          title?: T;
+                          avatar?: T;
+                        };
+                    company?:
+                      | T
+                      | {
+                          name?: T;
+                          logo?: T;
+                        };
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };

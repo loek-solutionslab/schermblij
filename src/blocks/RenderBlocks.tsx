@@ -15,6 +15,7 @@ import { Layout03Block } from '@/blocks/Layout03/Component'
 import { Layout04Block } from '@/blocks/Layout04/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { NavigationBlock } from '@/blocks/Navigation/Component'
+import { TestimonialBlockComponent } from '@/blocks/Testimonial/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -29,6 +30,7 @@ const blockComponents = {
   layout04: Layout04Block,
   mediaBlock: MediaBlock,
   navigation: NavigationBlock,
+  testimonial: TestimonialBlockComponent,
 } as const
 
 export const RenderBlocks: React.FC<{
