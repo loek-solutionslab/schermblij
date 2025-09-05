@@ -8,7 +8,7 @@
     "build": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation next build",
     "build:next": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
-    "migrate": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation echo 'Using push mode for deployment'",
+    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:force": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true NODE_OPTIONS=--no-deprecation payload migrate",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -18,7 +18,7 @@
     "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
-    "start": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation next start"
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "latest",
@@ -69,6 +69,7 @@
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "autoprefixer": "^10.4.20",
     "copyfiles": "^2.4.1",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.0.0",
     "postcss": "^8.4.49",
