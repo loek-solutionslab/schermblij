@@ -672,6 +672,194 @@ railway up --detach
 
 ---
 
+## Media Storage Configuration for Production
+
+### The Problem with Local File Storage
+
+By default, Payload CMS stores uploaded files in the `public/media` directory. This works perfectly for local development but **WILL NOT WORK** in production on platforms like:
+
+- **Railway** (ephemeral filesystem)
+- **Vercel** (serverless functions have limited storage)
+- **Heroku** (dyno restarts lose files)
+- **Docker containers** (files lost when container restarts)
+
+### Solution: Cloud Storage for Production
+
+This project is configured to use **local storage for development** and **S3-compatible cloud storage for production**.
+
+### Current Configuration
+
+The media storage is configured in `/src/payload.config.ts`:
+
+```typescript
+plugins: [
+  ...plugins,
+  // S3 Storage - Only enabled in production
+  ...(process.env.NODE_ENV === 'production' 
+    ? [s3Storage({
+        collections: {
+          media: true,
+        },
+        bucket: process.env.S3_BUCKET || '',
+        config: {
+          credentials: {
+            accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+          },
+          region: process.env.S3_REGION || 'us-east-1',
+          endpoint: process.env.S3_ENDPOINT, // Optional: for S3-compatible services
+          forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true', // For S3-compatible services
+        },
+      })]
+    : []
+  ),
+],
+```
+
+### Required Environment Variables for Production
+
+Add these environment variables to your production environment:
+
+```bash
+# Required S3 Configuration
+S3_BUCKET=your-s3-bucket-name
+S3_REGION=us-east-1
+S3_ACCESS_KEY_ID=your-access-key-id
+S3_SECRET_ACCESS_KEY=your-secret-access-key
+
+# Optional (for S3-compatible services like DigitalOcean Spaces, MinIO)
+S3_ENDPOINT=https://your-region.digitaloceanspaces.com
+S3_FORCE_PATH_STYLE=true
+```
+
+### Cloud Storage Options
+
+#### 1. Amazon S3 (Recommended)
+- **Pros**: Most reliable, best performance, global CDN
+- **Cons**: Can be more expensive for high traffic
+- **Setup**: Use the environment variables above
+
+#### 2. DigitalOcean Spaces
+- **Pros**: Cheaper than S3, S3-compatible API
+- **Cons**: Limited to specific regions
+- **Setup**:
+```bash
+S3_BUCKET=your-space-name
+S3_REGION=nyc3
+S3_ACCESS_KEY_ID=your-spaces-key
+S3_SECRET_ACCESS_KEY=your-spaces-secret
+S3_ENDPOINT=https://nyc3.digitaloceanspaces.com
+S3_FORCE_PATH_STYLE=true
+```
+
+#### 3. Cloudflare R2
+- **Pros**: Very cost-effective, no egress fees
+- **Cons**: Newer service, less mature ecosystem
+- **Setup**:
+```bash
+S3_BUCKET=your-r2-bucket
+S3_REGION=auto
+S3_ACCESS_KEY_ID=your-r2-token-id
+S3_SECRET_ACCESS_KEY=your-r2-token-secret
+S3_ENDPOINT=https://your-account-id.r2.cloudflarestorage.com
+S3_FORCE_PATH_STYLE=true
+```
+
+### Railway Deployment Setup
+
+1. **Create S3 Bucket** (or compatible service)
+2. **Set Environment Variables** in Railway:
+   ```bash
+   railway variables set S3_BUCKET=your-bucket-name
+   railway variables set S3_REGION=us-east-1
+   railway variables set S3_ACCESS_KEY_ID=your-access-key
+   railway variables set S3_SECRET_ACCESS_KEY=your-secret-key
+   ```
+
+### Local Development vs Production Behavior
+
+- **Development** (`NODE_ENV=development`):
+  - Files stored locally in `public/media/`
+  - Immediate file availability
+  - No cloud storage costs during development
+
+- **Production** (`NODE_ENV=production`):
+  - Files uploaded to S3-compatible cloud storage
+  - Automatic image optimization and resizing
+  - CDN distribution for better performance
+
+### Media Upload Sizes and Optimization
+
+The current configuration in `/src/collections/Media.ts` includes:
+
+```typescript
+imageSizes: [
+  { name: 'thumbnail', width: 300 },
+  { name: 'square', width: 500, height: 500 },
+  { name: 'small', width: 600 },
+  { name: 'medium', width: 900 },
+  { name: 'large', width: 1400 },
+  { name: 'xlarge', width: 1920 },
+],
+```
+
+These sizes are automatically generated and stored in cloud storage when files are uploaded in production.
+
+### Troubleshooting Media Storage
+
+#### Problem: "Files not accessible after deployment"
+**Solution**: Ensure S3 bucket has proper public read access and CORS configuration.
+
+#### Problem: "Upload fails with permission errors"
+**Solution**: Verify S3 credentials have write permissions to the bucket.
+
+#### Problem: "Images load slowly"
+**Solution**: Enable CloudFront or similar CDN for your S3 bucket.
+
+#### Problem: "Development works but production doesn't"
+**Solution**: Check environment variables are set correctly in production environment.
+
+### S3 Bucket Configuration
+
+Your S3 bucket needs these settings:
+
+1. **Public Read Access** (for image serving):
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::your-bucket-name/*"
+    }
+  ]
+}
+```
+
+2. **CORS Configuration** (if using client-side uploads):
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "POST", "PUT"],
+    "AllowedOrigins": ["https://yourdomain.com"],
+    "ExposeHeaders": []
+  }
+]
+```
+
+### Cost Optimization Tips
+
+1. **Use lifecycle policies** to move old files to cheaper storage classes
+2. **Enable compression** for text-based files
+3. **Set up CloudFront** for better performance and cost reduction
+4. **Monitor usage** to avoid unexpected charges
+
+---
+
 ## Golden Rules for Success
 
 1. **NEVER** mix push mode with production migrations

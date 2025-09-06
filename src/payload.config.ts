@@ -1,4 +1,5 @@
 // storage-adapter-import-placeholder
+import { s3Storage } from '@payloadcms/storage-s3'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import sharp from 'sharp' // sharp-import
@@ -12,9 +13,11 @@ import { Comments } from './collections/Comments'
 import { CourseCategories } from './collections/CourseCategories'
 import { Courses } from './collections/Courses'
 import { FormSubmissions } from './collections/FormSubmissions'
+import { Gallery } from './collections/Gallery'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
+import { Team } from './collections/Team'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -72,12 +75,30 @@ export default buildConfig({
     // Enable push mode when PAYLOAD_DATABASE_SYNC is set or in development
     push: process.env.PAYLOAD_DATABASE_SYNC === 'true' || process.env.NODE_ENV !== 'production',
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Comments, AgeGroups, CourseCategories, Courses, FormSubmissions],
+  collections: [Pages, Posts, Media, Categories, Users, Comments, AgeGroups, CourseCategories, Courses, FormSubmissions, Gallery, Team],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings],
   plugins: [
     ...plugins,
-    // storage-adapter-placeholder
+    // S3 Storage - Only enabled in production
+    ...(process.env.NODE_ENV === 'production' 
+      ? [s3Storage({
+          collections: {
+            media: true,
+          },
+          bucket: process.env.S3_BUCKET || '',
+          config: {
+            credentials: {
+              accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+              secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+            },
+            region: process.env.S3_REGION || 'us-east-1',
+            endpoint: process.env.S3_ENDPOINT, // Optional: for S3-compatible services
+            forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true', // For S3-compatible services
+          },
+        })]
+      : []
+    ),
   ],
   endpoints: [
     {

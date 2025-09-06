@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
@@ -87,8 +88,8 @@ export default async function AgeGroupPage({ params: paramsPromise }: Args) {
         age_groups: {
           contains: ageGroup.id,
         },
-        status: {
-          equals: 'active',
+        _status: {
+          equals: 'published',
         },
       },
       select: {
@@ -194,9 +195,11 @@ export default async function AgeGroupPage({ params: paramsPromise }: Args) {
             {relatedCourses.docs.map((course) => (
               <div key={course.id} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
                 {course.featured_image && typeof course.featured_image === 'object' && (
-                  <img 
+                  <Image 
                     src={course.featured_image.url || ''} 
                     alt={course.featured_image.alt || course.title}
+                    width={400}
+                    height={192}
                     className="w-full h-48 object-cover rounded-md mb-4"
                   />
                 )}
@@ -247,9 +250,11 @@ export default async function AgeGroupPage({ params: paramsPromise }: Args) {
             .map((otherAge) => (
             <div key={otherAge.id} className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
               {otherAge.icon && typeof otherAge.icon === 'object' && (
-                <img 
+                <Image 
                   src={otherAge.icon.url || ''} 
                   alt={otherAge.icon.alt || otherAge.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 object-cover rounded-full mb-3"
                 />
               )}

@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
+import { emailService } from '../services/email'
 
 export const FormSubmissions: CollectionConfig = {
   slug: 'form_submissions',
@@ -145,6 +146,86 @@ export const FormSubmissions: CollectionConfig = {
           data.submitted_at = new Date()
         }
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, req, operation }) => {
+        // Send email notifications for new course bookings
+        if (operation === 'create' && doc.form_type === 'enrollment') {
+          try {
+            // Get the related course data if available
+            let courseData: any = null
+            if (doc.course_reference && typeof doc.course_reference === 'string') {
+              try {
+                courseData = await req.payload.findByID({
+                  collection: 'courses',
+                  id: doc.course_reference,
+                })
+              } catch (error) {
+                console.warn('Could not fetch course data for email:', error)
+              }
+            }
+
+            // Parse children data from the message
+            const childrenMatches = doc.message?.match(/Kinderen \((\d+)\):\n([\s\S]*?)(?=\n\n|$)/)
+            const children: Array<{ name: string; age: number }> = []
+            
+            if (childrenMatches && childrenMatches[2]) {
+              const childrenLines = childrenMatches[2].split('\n')
+              childrenLines.forEach(line => {
+                const match = line.match(/- (.+?) \((\d+) jaar oud\)/)
+                if (match) {
+                  children.push({
+                    name: match[1] === 'Naamloos' ? '' : match[1],
+                    age: parseInt(match[2])
+                  })
+                }
+              })
+            }
+
+            // Parse session info from message
+            const sessionMatch = doc.message?.match(/Datum: (.+?)(?:\n|$)/)
+            const locationMatch = doc.message?.match(/- Locatie: (.+?)(?:\n|$)/)
+            const additionalInfoMatch = doc.message?.match(/Aanvullende informatie:\n([\s\S]*)$/)
+            
+            const sessionDate = sessionMatch ? sessionMatch[1] : 'Datum niet beschikbaar'
+            const sessionLocation = locationMatch ? locationMatch[1] : 'Locatie niet beschikbaar'
+            const additionalInfo = additionalInfoMatch ? additionalInfoMatch[1].trim() : undefined
+            
+            const courseTitle = courseData?.title || 'Onbekende cursus'
+
+            // Send customer confirmation email
+            await emailService.sendCustomerConfirmation(
+              doc.email,
+              doc.name,
+              courseTitle,
+              sessionDate,
+              sessionLocation,
+              children
+            )
+
+            // Send admin notification email
+            const adminEmail = process.env.ADMIN_EMAIL || 'info@schermblij.nl'
+            await emailService.sendAdminNotification(
+              adminEmail,
+              doc.name,
+              doc.email,
+              doc.phone || 'Geen telefoonnummer opgegeven',
+              courseTitle,
+              sessionDate,
+              sessionLocation,
+              children,
+              additionalInfo
+            )
+
+            console.log(`Course booking emails sent successfully for submission ${doc.id}`)
+
+          } catch (error) {
+            console.error('Failed to send course booking emails:', error)
+            // Don't throw the error to prevent blocking the form submission
+            // Instead, log it for manual follow-up
+          }
+        }
       },
     ],
   },

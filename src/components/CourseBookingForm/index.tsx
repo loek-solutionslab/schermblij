@@ -222,9 +222,15 @@ ${data.additionalInfo ? `\nAanvullende informatie:\n${data.additionalInfo}` : ''
           Bedankt voor je interesse in <strong>{course.title}</strong>. 
           We nemen binnen 1 werkdag contact met je op om je boeking te bevestigen.
         </p>
-        <p className="text-sm text-green-600 dark:text-green-500">
-          Je ontvangt een bevestigingsmail op {getValues('parentEmail')}.
-        </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-900/20 dark:border-blue-800">
+          <p className="text-sm text-blue-800 dark:text-blue-300 mb-2">
+            <strong>📧 E-mail bevestigingen verzonden:</strong>
+          </p>
+          <ul className="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
+            <li>Bevestigingsmail naar <strong>{getValues('parentEmail')}</strong></li>
+            <li>Melding naar onze administratie voor snelle afhandeling</li>
+          </ul>
+        </div>
       </div>
     )
   }

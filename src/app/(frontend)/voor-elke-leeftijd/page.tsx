@@ -1,4 +1,5 @@
 import type { Metadata } from 'next/types'
+import Image from 'next/image'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -49,9 +50,11 @@ export default async function VoorElkeLeeftijdPage() {
               <div key={ageGroup.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
                 {ageGroup.icon && typeof ageGroup.icon === 'object' && (
                   <div className="h-48 w-full overflow-hidden">
-                    <img 
+                    <Image 
                       src={ageGroup.icon.url || ''} 
                       alt={ageGroup.icon.alt || ageGroup.name}
+                      width={300}
+                      height={192}
                       className="w-full h-full object-cover"
                     />
                   </div>
