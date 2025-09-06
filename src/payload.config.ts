@@ -109,7 +109,7 @@ export default buildConfig({
       }
     }
   ],
-  secret: process.env.PAYLOAD_SECRET || '6TcsY6nZRfbdjsAFviyMqplVPiDzKQjG3+1Dt4R8l+Q=',
+  secret: process.env.PAYLOAD_SECRET || '6TcsY6nZRfbdjsAFviyMqplVPiDzKQjG3+1Dt4R8l+Q=', // Force rebuild
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
