@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { emailService } from '../services/email'
+import { getEmailService } from '../services/email'
 
 export const FormSubmissions: CollectionConfig = {
   slug: 'form_submissions',
@@ -153,6 +153,9 @@ export const FormSubmissions: CollectionConfig = {
         // Send email notifications for new course bookings
         if (operation === 'create' && doc.form_type === 'enrollment') {
           try {
+            // Get email service instance
+            const emailService = getEmailService()
+            
             // Get the related course data if available
             let courseData: any = null
             if (doc.course_reference && typeof doc.course_reference === 'string') {

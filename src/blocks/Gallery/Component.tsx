@@ -2,6 +2,8 @@ import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import type { GalleryBlock, Gallery } from '@/payload-types'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 export const GalleryBlockComponent: React.FC<GalleryBlock> = async (block) => {
   const {
@@ -21,7 +23,7 @@ export const GalleryBlockComponent: React.FC<GalleryBlock> = async (block) => {
   let items: Gallery[] = []
   
   try {
-    const { default: payload } = await import('payload')
+    const payload = await getPayload({ config: configPromise })
     
     if (display_mode === 'manual' && gallery_items && Array.isArray(gallery_items)) {
       // Get manually selected gallery items

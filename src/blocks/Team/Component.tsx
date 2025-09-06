@@ -1,9 +1,9 @@
 import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import type { TeamBlock, Team } from '@/payload-types'
-
-import type { Media } from '@/payload-types'
+import type { TeamBlock, Team, Media } from '@/payload-types'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 interface TeamMemberMedia {
   url?: string
@@ -52,7 +52,7 @@ export const TeamBlockComponent: React.FC<TeamBlock> = async (block) => {
   let members: Team[] = []
   
   try {
-    const { default: payload } = await import('payload')
+    const payload = await getPayload({ config: configPromise })
     
     if (display_mode === 'manual' && team_members && Array.isArray(team_members)) {
       // Get manually selected team members

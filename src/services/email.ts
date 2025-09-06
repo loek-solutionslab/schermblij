@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import type { Transporter } from 'nodemailer'
 
 export interface EmailConfig {
   host: string
@@ -17,33 +18,51 @@ export interface EmailTemplate {
 }
 
 export class EmailService {
-  private transporter: nodemailer.Transporter
+  private transporter: Transporter | null = null
   private fromAddress: string
+  private isConfigured: boolean = false
 
   constructor() {
-    // Initialize email configuration from environment variables
-    const emailConfig: EmailConfig = {
-      host: process.env.EMAIL_HOST || 'localhost',
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USER || '',
-        pass: process.env.EMAIL_PASS || '',
-      },
-    }
-
     this.fromAddress = process.env.EMAIL_FROM || 'noreply@schermblij.nl'
+    
+    // Check if email configuration is available
+    if (
+      process.env.EMAIL_HOST &&
+      process.env.EMAIL_USER &&
+      process.env.EMAIL_PASS
+    ) {
+      try {
+        // Initialize email configuration from environment variables
+        const emailConfig: EmailConfig = {
+          host: process.env.EMAIL_HOST,
+          port: parseInt(process.env.EMAIL_PORT || '587'),
+          secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        }
 
-    // Create reusable transporter object using SMTP
-    this.transporter = nodemailer.createTransport({
-      host: emailConfig.host,
-      port: emailConfig.port,
-      secure: emailConfig.secure,
-      auth: {
-        user: emailConfig.auth.user,
-        pass: emailConfig.auth.pass,
-      },
-    })
+        // Create reusable transporter object using SMTP
+        this.transporter = nodemailer.createTransport({
+          host: emailConfig.host,
+          port: emailConfig.port,
+          secure: emailConfig.secure,
+          auth: {
+            user: emailConfig.auth.user,
+            pass: emailConfig.auth.pass,
+          },
+        })
+        
+        this.isConfigured = true
+      } catch (error) {
+        console.warn('Email service configuration failed:', error)
+        this.isConfigured = false
+      }
+    } else {
+      console.warn('Email service not configured. Missing required environment variables.')
+      this.isConfigured = false
+    }
   }
 
   /**
@@ -56,6 +75,11 @@ export class EmailService {
     text?: string,
     replyTo?: string
   ): Promise<void> {
+    if (!this.isConfigured || !this.transporter) {
+      console.warn('Email service is not configured. Skipping email send to:', to)
+      return
+    }
+
     try {
       const mailOptions = {
         from: this.fromAddress,
@@ -340,7 +364,7 @@ Deze e-mail is automatisch gegenereerd door het boekingssysteem.
    */
   async verifyConnection(): Promise<boolean> {
     try {
-      await this.transporter.verify()
+      await this.transporter?.verify()
       console.log('Email server connection verified successfully')
       return true
     } catch (error) {
@@ -366,5 +390,15 @@ Deze e-mail is automatisch gegenereerd door het boekingssysteem.
   }
 }
 
-// Export singleton instance
-export const emailService = new EmailService()
+// Export singleton instance with lazy initialization
+let emailServiceInstance: EmailService | null = null
+
+export const getEmailService = (): EmailService => {
+  if (!emailServiceInstance) {
+    emailServiceInstance = new EmailService()
+  }
+  return emailServiceInstance
+}
+
+// Export for backward compatibility
+export const emailService = getEmailService()
