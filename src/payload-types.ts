@@ -146,6 +146,7 @@ export interface Page {
     | FormBlock
     | TestimonialBlock
     | FAQBlock
+    | PricingBlock
   )[];
   meta?: {
     title?: string | null;
@@ -1019,6 +1020,56 @@ export interface FAQBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingBlock".
+ */
+export interface PricingBlock {
+  heading: string;
+  subheading?: string | null;
+  description?: string | null;
+  showBillingToggle?: boolean | null;
+  billingPeriods?: {
+    monthly?: {
+      label?: string | null;
+    };
+    yearly?: {
+      label?: string | null;
+    };
+  };
+  pricingPlans?:
+    | {
+        name: string;
+        featured?: boolean | null;
+        pricing: {
+          monthly: {
+            price: string;
+            originalPrice?: string | null;
+          };
+          yearly?: {
+            price?: string | null;
+            originalPrice?: string | null;
+            savingsText?: string | null;
+          };
+        };
+        features?:
+          | {
+              feature: string;
+              id?: string | null;
+            }[]
+          | null;
+        cta?: {
+          text?: string | null;
+          link?: string | null;
+          variant?: ('default' | 'outline' | 'secondary') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pricing';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "comments".
  */
 export interface Comment {
@@ -1734,6 +1785,67 @@ export interface PagesSelect<T extends boolean = true> {
                     description?: T;
                     buttonText?: T;
                     buttonLink?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        pricing?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              description?: T;
+              showBillingToggle?: T;
+              billingPeriods?:
+                | T
+                | {
+                    monthly?:
+                      | T
+                      | {
+                          label?: T;
+                        };
+                    yearly?:
+                      | T
+                      | {
+                          label?: T;
+                        };
+                  };
+              pricingPlans?:
+                | T
+                | {
+                    name?: T;
+                    featured?: T;
+                    pricing?:
+                      | T
+                      | {
+                          monthly?:
+                            | T
+                            | {
+                                price?: T;
+                                originalPrice?: T;
+                              };
+                          yearly?:
+                            | T
+                            | {
+                                price?: T;
+                                originalPrice?: T;
+                                savingsText?: T;
+                              };
+                        };
+                    features?:
+                      | T
+                      | {
+                          feature?: T;
+                          id?: T;
+                        };
+                    cta?:
+                      | T
+                      | {
+                          text?: T;
+                          link?: T;
+                          variant?: T;
+                        };
+                    id?: T;
                   };
               id?: T;
               blockName?: T;

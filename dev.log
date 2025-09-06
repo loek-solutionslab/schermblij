@@ -1,0 +1,14 @@
+
+> payload-3-boilerplate@1.0.0 dev
+> cross-env NODE_OPTIONS=--no-deprecation next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+   ▲ Next.js 15.0.4
+   - Local:        http://localhost:3001
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · turbo
+
+ ✓ Starting...
+ ✓ Ready in 1514ms
+[?25h

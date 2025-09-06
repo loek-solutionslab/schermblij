@@ -3,7 +3,9 @@ import type { Metadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
-import { dutchRoutes, ageGroups, generatePageTitle, generatePageDescription } from '@/utilities/dutchRoutes'
+import { dutchRoutes, generatePageTitle, generatePageDescription } from '@/utilities/dutchRoutes'
+import RichText from '@/components/RichText'
+import type { AgeGroup } from '@/payload-types'
 import PageClient from './page.client'
 
 export const dynamic = 'force-static'
@@ -12,37 +14,14 @@ export const revalidate = 600
 export default async function VoorElkeLeeftijdPage() {
   const payload = await getPayload({ config: configPromise })
 
-  // Fetch age-related content
-  const ageContent = await payload.find({
-    collection: 'pages',
-    depth: 1,
+  // Fetch all age groups from database
+  const ageGroupsResult = await payload.find({
+    collection: 'age_groups',
     limit: 20,
-    overrideAccess: false,
-    where: {
-      or: [
-        {
-          slug: {
-            in: ['baby', 'peuters', 'kleuters', 'onderbouw', 'bovenbouw', 'tieners']
-          }
-        },
-        {
-          title: {
-            contains: 'jaar'
-          }
-        },
-        {
-          title: {
-            contains: 'leeftijd'
-          }
-        }
-      ]
-    },
-    select: {
-      title: true,
-      slug: true,
-      meta: true,
-    },
+    sort: 'order',
   })
+  
+  const ageGroups = ageGroupsResult.docs as AgeGroup[]
 
   return (
     <div className="pt-24 pb-24">
@@ -62,111 +41,57 @@ export default async function VoorElkeLeeftijdPage() {
       {/* Age Groups Grid */}
       <div className="container mb-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {Object.entries(ageGroups).map(([key, ageGroup]) => (
-            <div key={key} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
-              <div className="p-8">
-                <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+          {ageGroups.map((ageGroup) => {
+            const colorStyle = ageGroup.color ? { backgroundColor: `${ageGroup.color}20` } : {}
+            const accentColor = ageGroup.color || '#3B82F6'
+            
+            return (
+              <div key={ageGroup.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                {ageGroup.icon && typeof ageGroup.icon === 'object' && (
+                  <div className="h-48 w-full overflow-hidden">
+                    <img 
+                      src={ageGroup.icon.url || ''} 
+                      alt={ageGroup.icon.alt || ageGroup.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
+                <div className="p-8" style={colorStyle}>
+                  <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                    <a 
+                      href={`${dutchRoutes.ageGroups.path}/${ageGroup.slug}`}
+                      className="hover:opacity-80 transition-opacity"
+                      style={{ color: accentColor }}
+                    >
+                      {ageGroup.name}
+                    </a>
+                  </h3>
+                  
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {ageGroup.min_age}-{ageGroup.max_age} jaar
+                  </p>
+                  
+                  <div className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+                    {ageGroup.description && <RichText content={ageGroup.description} />}
+                  </div>
+                  
+                  {/* Age-specific highlights based on age range */}
+                  <AgeSpecificHighlights ageGroup={ageGroup} accentColor={accentColor} />
+                </div>
+                
+                <div className="px-8 pb-8">
                   <a 
                     href={`${dutchRoutes.ageGroups.path}/${ageGroup.slug}`}
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="inline-block w-full text-center text-white py-3 rounded-lg transition-colors font-medium hover:opacity-90"
+                    style={{ backgroundColor: accentColor }}
                   >
-                    {ageGroup.title}
+                    Lees meer →
                   </a>
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                  {ageGroup.description}
-                </p>
-                
-                {/* Age-specific highlights */}
-                {key === 'baby' && (
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
-                      Geen schermtijd aanbevolen
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
-                      Focus op echte interactie
-                    </div>
-                  </div>
-                )}
-                
-                {key === 'peuters' && (
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                      Zeer beperkte schermtijd
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                      Samen kijken en bespreken
-                    </div>
-                  </div>
-                )}
-                
-                {key === 'kleuters' && (
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
-                      Kwaliteit boven kwantiteit
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
-                      Eerste regels en grenzen
-                    </div>
-                  </div>
-                )}
-                
-                {key === 'onderbouw' && (
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
-                      Duidelijke afspraken
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
-                      Bewustwording ontwikkelen
-                    </div>
-                  </div>
-                )}
-                
-                {key === 'bovenbouw' && (
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
-                      Meer zelfstandigheid
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
-                      Kritisch denken stimuleren
-                    </div>
-                  </div>
-                )}
-                
-                {key === 'tieners' && (
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
-                      Begeleiding op afstand
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
-                      Vertrouwen en dialoog
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
-              
-              <div className="px-8 pb-8">
-                <a 
-                  href={`${dutchRoutes.ageGroups.path}/${ageGroup.slug}`}
-                  className="inline-block w-full text-center bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  Lees meer →
-                </a>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -215,31 +140,39 @@ export default async function VoorElkeLeeftijdPage() {
         </div>
       </div>
 
-      {/* Related Content */}
-      {ageContent.docs.length > 0 && (
-        <div className="container">
-          <h2 className="text-2xl font-bold mb-8">Gerelateerde content</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ageContent.docs.slice(0, 6).map((content, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold mb-2">
-                  <a 
-                    href={`/${content.slug}`}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    {content.title}
-                  </a>
-                </h3>
-                {content.meta?.description && (
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    {content.meta.description}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+    </div>
+  )
+}
+
+// Age-specific highlights component
+function AgeSpecificHighlights({ ageGroup, accentColor }: { ageGroup: AgeGroup, accentColor: string }) {
+  const getHighlights = (minAge: number, maxAge: number) => {
+    if (maxAge <= 2) {
+      return ['Geen schermtijd aanbevolen', 'Focus op echte interactie']
+    } else if (maxAge <= 4) {
+      return ['Zeer beperkte schermtijd', 'Samen kijken en bespreken']
+    } else if (maxAge <= 6) {
+      return ['Kwaliteit boven kwantiteit', 'Eerste regels en grenzen']
+    } else if (maxAge <= 12) {
+      return ['Duidelijke afspraken', 'Bewustwording ontwikkelen']
+    } else {
+      return ['Begeleiding op afstand', 'Vertrouwen en dialoog']
+    }
+  }
+
+  const highlights = getHighlights(ageGroup.min_age, ageGroup.max_age)
+
+  return (
+    <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+      {highlights.map((highlight, index) => (
+        <div key={index} className="flex items-center">
+          <span 
+            className="w-2 h-2 rounded-full mr-2" 
+            style={{ backgroundColor: accentColor }}
+          ></span>
+          {highlight}
         </div>
-      )}
+      ))}
     </div>
   )
 }

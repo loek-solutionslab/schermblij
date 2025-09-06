@@ -15,6 +15,7 @@ import { Layout04 } from '../../blocks/Layout04/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { Testimonial } from '../../blocks/Testimonial/config'
 import { FAQ } from '../../blocks/FAQ/config'
+import { Pricing } from '../../blocks/Pricing/config'
 import { Navigation } from '../../blocks/Navigation/config'
 import { hero } from '@/heros/config'
 import { slugField } from '@/fields/slug'
@@ -86,7 +87,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, CallToActionRelume, Content, FooterBlock, Header05, Layout01, Layout03, Layout04, MediaBlock, Navigation, Archive, FormBlock, Testimonial, FAQ],
+              blocks: [CallToAction, CallToActionRelume, Content, FooterBlock, Header05, Layout01, Layout03, Layout04, MediaBlock, Navigation, Archive, FormBlock, Testimonial, FAQ, Pricing],
               required: true,
             },
           ],

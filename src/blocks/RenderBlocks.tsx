@@ -17,6 +17,7 @@ import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { NavigationBlock } from '@/blocks/Navigation/Component'
 import { TestimonialBlockComponent } from '@/blocks/Testimonial/Component'
 import { FAQBlockComponent } from '@/blocks/FAQ/Component'
+import { PricingBlockComponent } from '@/blocks/Pricing/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -33,6 +34,7 @@ const blockComponents = {
   navigation: NavigationBlock,
   testimonial: TestimonialBlockComponent,
   faq: FAQBlockComponent,
+  pricing: PricingBlockComponent,
 } as const
 
 export const RenderBlocks: React.FC<{
