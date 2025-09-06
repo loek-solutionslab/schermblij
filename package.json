@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "cross-env PAYLOAD_MIGRATE_SKIP_PROMPT=true NODE_OPTIONS=--no-deprecation payload migrate && pnpm generate:importmap && cross-env NODE_OPTIONS=--no-deprecation next build",
+    "build": "pnpm generate:importmap && cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation next build",
     "build:local": "cross-env PAYLOAD_DATABASE_SYNC=true NODE_OPTIONS=--no-deprecation next build",
     "build:next": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
